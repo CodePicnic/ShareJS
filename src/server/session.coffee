@@ -343,7 +343,7 @@ exports.handler = (session, createAgent) ->
       if typeof msg.auth != 'undefined'
         clearTimeout timeout
         data.authentication = msg.auth
-        session.authentication = msg.auth
+        session.authentication = session.authentication or msg.auth
         createAgent data, (error, agent_) ->
           if error
             # The client is not authorized, so they shouldn't try and reconnect.
