@@ -1,3 +1,4 @@
+# node_modules/share/src/server/session.coffee
 # This implements the network API for ShareJS.
 #
 # The wire protocol is speccced out here:
@@ -129,7 +130,18 @@ exports.handler = (session, createAgent) ->
       else
         lastSentDoc = response.doc
 
-      
+      response.meta.clientId = session.authentication if response.meta
+
+      console.log "**              SEND              **"
+      console.log "*                                  *"
+      console.log "*                                  *"
+      console.log response
+      console.log "*                                  *"
+      console.log "*                                  *"
+      console.log "*                                  *"
+      console.log "**              SEND              **"
+
+
       # Its invalid to send a message to a closed session. We'll silently drop messages if the
       # session has closed.
       if session.ready()
@@ -316,7 +328,7 @@ exports.handler = (session, createAgent) ->
       session.send
         auth: null
         error: error
-      
+
       session.stop()
 
     # Wait for client to send an auth message, but don't wait forever
@@ -331,6 +343,7 @@ exports.handler = (session, createAgent) ->
       if typeof msg.auth != 'undefined'
         clearTimeout timeout
         data.authentication = msg.auth
+        session.authentication = msg.auth
         createAgent data, (error, agent_) ->
           if error
             # The client is not authorized, so they shouldn't try and reconnect.
