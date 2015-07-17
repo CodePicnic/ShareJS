@@ -47,6 +47,7 @@ exports.handler = (session, createAgent) ->
     # session is authenticated. The agent is responsible for making sure client requests are
     # properly authorized, and metadata is kept up to date.
     agent = null
+    clientId = {}
 
     # To save on network traffic, the agent & server can leave out the docName with each message to mean
     # 'same as the last message'
@@ -130,17 +131,17 @@ exports.handler = (session, createAgent) ->
       else
         lastSentDoc = response.doc
 
-      response.meta.clientId = session.authentication if response.meta
+      if response.meta
+        response.meta.ids = clientId
 
-      console.log "**              SEND              **"
-      console.log "*                                  *"
-      console.log "*                                  *"
-      console.log response
-      console.log "*                                  *"
-      console.log "*                                  *"
-      console.log "*                                  *"
-      console.log "**              SEND              **"
-
+      # console.log "**              SEND              **"
+      # console.log "*                                  *"
+      # console.log "*                                  *"
+      # console.log response
+      # console.log "*                                  *"
+      # console.log "*                                  *"
+      # console.log "*                                  *"
+      # console.log "**              SEND              **"
 
       # Its invalid to send a message to a closed session. We'll silently drop messages if the
       # session has closed.
@@ -340,16 +341,26 @@ exports.handler = (session, createAgent) ->
     # they are stored in this buffer.
     buffer = []
     session.on 'message', bufferMsg = (msg) ->
+      # console.log "**              MESSAGE              **"
+      # console.log "*                                     *"
+      # console.log "*                                     *"
+      # console.log msg
+      # console.log "*                                     *"
+      # console.log "*                                     *"
+      # console.log "*                                     *"
+      # console.log "**              MESSAGE              **"
+
       if typeof msg.auth != 'undefined'
         clearTimeout timeout
         data.authentication = msg.auth
-        session.authentication = session.authentication or msg.auth
+        # session.authentication = session.authentication or msg.auth
         createAgent data, (error, agent_) ->
           if error
             # The client is not authorized, so they shouldn't try and reconnect.
             failAuthentication(error)
           else
             agent = agent_
+            clientId[agent.sessionId] = msg.clientId
             session.send auth:agent.sessionId
 
           # Ok. Now we can handle all the messages in the buffer. They'll go straight to
